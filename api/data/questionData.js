@@ -1,4 +1,6 @@
+const { ObjectId } = require('mongodb');
 const Question = require('../../models/Question');
+const Reaction = require('../../models/Reaction');
 
 module.exports = {
     async getAll(options = {}) {
@@ -20,8 +22,21 @@ module.exports = {
             .populate('reactions')
             .populate('tags');
     },
+
+    async getReactionsIdBy(questionId) {
+        const { reactions: reactionsId } = await Question.findOne({
+            _id: questionId,
+        }).select('-_id reactions');
+        return reactionsId;
+    },
+    async getAuthorIdBy(questionId) {
+        const { author: authorId } = await Question.findOne({
+            _id: questionId,
+        }).select('-_id author');
+        return authorId;
+    },
     async deleteOne(id) {
-        // remove reactions !!!
+        //TODO remove reactions !!!
         return Question.findByIdAndRemove(id);
     },
 };

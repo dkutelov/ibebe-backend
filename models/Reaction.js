@@ -34,4 +34,14 @@ const reactionSchema = mongoose.Schema({
     ],
 });
 
+reactionSchema.virtual('numbers').get(function () {
+    return {
+        loves: this.loves.length,
+        claps: this.claps.length,
+        likes: this.likes.length,
+        thankful: this.thankful.length,
+        unsatisfied: this.unsatisfied.length,
+    };
+});
+
 module.exports = mongoose.model('Reaction', reactionSchema);

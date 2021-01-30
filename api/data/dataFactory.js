@@ -18,6 +18,17 @@ module.exports = function dataFactory(model) {
         );
     }
 
+    async function updateAddToArray(id, propName, newItem) {
+        return await model.findByIdAndUpdate(
+            id,
+            { $push: { [propName]: newItem } },
+            {
+                new: true,
+                useFindAndModify: false,
+            }
+        );
+    }
+
     async function getOneById(id) {
         return await model.findById(id);
     }
@@ -32,5 +43,6 @@ module.exports = function dataFactory(model) {
         getAll,
         getOneById,
         deleteOne,
+        updateAddToArray,
     };
 };

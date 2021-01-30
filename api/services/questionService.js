@@ -2,7 +2,7 @@ const Question = require('../../models/Question');
 const Reaction = require('../../models/Reaction');
 
 const questionData = require('../data/questionData');
-const dataFactory = require('../data/dataFactory')(Reaction);
+const reactionData = require('../data/reactionsData');
 
 async function getAll() {
     return await questionData.getAll();
@@ -11,7 +11,7 @@ async function getAll() {
 async function create(data) {
     const userId = '6012c1dfc6e6967397819a16';
     const reaction = new Reaction({});
-    const createdReaction = await dataFactory.createOne(reaction);
+    const createdReaction = await reactionData.createOne(reaction);
     const reactionsId = createdReaction._id;
     const question = new Question({
         author: userId,
@@ -24,16 +24,22 @@ async function create(data) {
 
 async function update(data) {
     const { id, name } = data;
-    return await dataFactory.updateOne(id, { name });
+    return await questionData.updateOne(id, { name });
 }
 
 async function remove(data) {
     const { id } = data;
-    return await dataFactory.deleteOne(id);
+    return await questionData.deleteOne(id);
 }
 
 async function getOneById(id) {
-    return await questionData.getOneById(id);
+    const currentQuestion = await questionData.getOneById(id);
+    let views = currentQuestion.views;
+    views += 1;
+    const updatedQuestionWithViews = await questionData.updateOne(id, {
+        views,
+    });
+    return updatedQuestionWithViews;
 }
 
 module.exports = {

@@ -1,5 +1,7 @@
 const { Router } = require('express');
+
 const questionService = require('../services/questionService');
+const reactionService = require('../services/reactionService');
 
 const router = new Router();
 
@@ -25,6 +27,18 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const question = await questionService.create(req.body);
+        res.status(201).json(question);
+    } catch (err) {
+        res.status(400).json({ err });
+    }
+});
+
+router.post('/:id/reaction', async (req, res) => {
+    const id = req.params.id;
+    const type = req.query.type;
+
+    try {
+        const question = await reactionService.handleReaction(id, type);
         res.status(201).json(question);
     } catch (err) {
         res.status(400).json({ err });
