@@ -39,4 +39,4 @@
 
 ### Tags
 
-    -   path "/tags", same as category
+-   path "/tags", same as category

@@ -4,7 +4,10 @@ const Reaction = require('../../models/Reaction');
 
 module.exports = {
     async getAll(options = {}) {
-        return await Question.find(options);
+        return await Question.find(options)
+            .populate({ path: 'category', select: 'name' })
+            .populate({ path: 'tags', select: 'name' })
+            .populate({ path: 'reactions' });
     },
     async createOne(newItem) {
         return await newItem.save();
@@ -14,13 +17,13 @@ module.exports = {
             id,
             { $set: updatedProps },
             { new: true }
-        );
+        )
+            .populate({ path: 'category', select: 'name' })
+            .populate({ path: 'tags', select: 'name' })
+            .populate({ path: 'reactions' });
     },
-    async getOneById(id) {
-        return await Question.findById(id)
-            .populate('category')
-            .populate('reactions')
-            .populate('tags');
+    async getOneById(questionId) {
+        return await Question.findById(questionId);
     },
 
     async getReactionsIdBy(questionId) {
