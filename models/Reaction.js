@@ -44,4 +44,13 @@ reactionSchema.virtual('numbers').get(function () {
     };
 });
 
+reactionSchema.virtual('votes').get(function () {
+    return (
+        this.loves.length +
+        this.likes.length +
+        this.claps.length +
+        this.thankful.length
+    );
+});
+
 module.exports = mongoose.model('Reaction', reactionSchema);

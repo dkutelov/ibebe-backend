@@ -33,13 +33,27 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.post('/:id/reaction', async (req, res) => {
+router.get('/:id/reactions', async (req, res) => {
+    const questionId = req.params.id;
+
+    try {
+        const reactions = await reactionService.getReactionsBy(questionId);
+        res.status(201).json(reactions);
+    } catch (err) {
+        res.status(400).json({ err });
+    }
+});
+
+router.post('/:id/reactions', async (req, res) => {
     const id = req.params.id;
     const type = req.query.type;
 
     try {
-        const question = await reactionService.handleReaction(id, type);
-        res.status(201).json(question);
+        const reactions = await reactionService.createOrRemoveReaction(
+            id,
+            type
+        );
+        res.status(201).json(reactions);
     } catch (err) {
         res.status(400).json({ err });
     }

@@ -53,7 +53,7 @@ module.exports = function (model) {
         const reactions = await Reaction.findOne({
             _id: reactionsId,
         });
-        return reactions.numbers;
+        return { ...reactions.numbers, votes: reactions.votes };
     }
 
     return {
