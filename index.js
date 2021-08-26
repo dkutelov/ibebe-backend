@@ -9,6 +9,7 @@ const routes = require('./api/router');
 
 const PORT = process.env.PORT || 5000;
 
+app.get('/favicon.ico', (req, res) => res.status(204));
 app.use('/api', routes);
 
 app.use(errorHandler);

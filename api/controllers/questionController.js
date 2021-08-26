@@ -14,6 +14,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/count', async (req, res) => {
+  const params = req.query;
+  try {
+    const questions = await questionService.getCount(params);
+    res.status(200).json(questions);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+});
+
 router.get('/user/:id', async (req, res) => {
   const userId = req.params.id;
   try {

@@ -31,6 +31,11 @@ async function getAll(params) {
   return questions;
 }
 
+async function getCount(params) {
+  const questions = await questionData.getCount(params);
+  return questions;
+}
+
 function getQuestionsByUserId(userId) {
   return Question.find({ author: userId }).populate({
     path: 'category',
@@ -173,4 +178,5 @@ module.exports = {
   createAndAddComment,
   getCommentsByQuestionId,
   getQuestionsByUserId,
+  getCount,
 };

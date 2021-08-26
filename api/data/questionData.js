@@ -15,6 +15,45 @@ module.exports = {
     }
 
     if (params.tag) {
+      options.tags = { $in: [params.tag] };
+    }
+
+    if (params.search) {
+      options = {
+        ...options,
+        $text: {
+          $search: params.search,
+        },
+      };
+    }
+
+    let questions = Question.find(options);
+
+    if (params.pageIndex && params.pageSize) {
+      questions
+        .skip(+params.pageSize * (+params.pageIndex - 1))
+        .limit(+params.pageSize);
+    }
+
+    return questions
+      .populate({ path: 'author', select: 'username email avatar' })
+      .populate({ path: 'category', select: 'name' })
+      .populate({ path: 'tags', select: 'name' });
+  },
+
+  async getCount(params) {
+    let options = {};
+
+    if (params.category) {
+      options.category = params.category;
+      //
+    }
+
+    if (params.author) {
+      options.author = params.author;
+    }
+
+    if (params.tag) {
       options.tags = params.tag;
     }
 
@@ -28,16 +67,8 @@ module.exports = {
     }
 
     let questions = Question.find(options);
-    if (params.pageIndex && params.pageSize) {
-      questions
-        .skip(+params.pageSize * (+params.pageIndex - 1))
-        .limit(+params.pageSize);
-    }
 
-    return questions
-      .populate({ path: 'author', select: 'username email avatar' })
-      .populate({ path: 'category', select: 'name' })
-      .populate({ path: 'tags', select: 'name' });
+    return questions.countDocuments();
   },
 
   async createOne(newItem) {
