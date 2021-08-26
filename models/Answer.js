@@ -1,40 +1,63 @@
 const mongoose = require('mongoose');
-const validators = require('../utils/validators');
+const Schema = mongoose.Schema;
 
-const answerSchema = mongoose.Schema({
+const answerSchema = mongoose.Schema(
+  {
     question: {
-        type: Schema.Types.ObjectId,
-        ref: 'Question',
+      type: Schema.Types.ObjectId,
+      ref: 'Question',
     },
     text: {
-        type: String,
-        required: true,
-        minLength: 15,
-        trim: true,
-        default: 'anonymous',
+      type: String,
+      required: true,
+      minLength: 15,
+      trim: true,
+      default: 'anonymous',
     },
-    imageURL: {
-        type: String,
-        trim: true,
-    },
-    author: {
+    imageURL: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Image',
+      },
+    ],
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     created: {
-        type: Date,
-        default: Date.now,
+      type: Date,
+      default: Date.now,
     },
-    reactions: {
+    upVotes: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'Reaction',
-    },
+        ref: 'User',
+      },
+    ],
+    downVotes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
+  },
+  {
+    toJSON: { virtuals: true },
+  },
+);
+
+answerSchema.virtual('upVotesCount').get(function () {
+  return this.upVotes.length;
 });
 
-// computed time since creation
-
-messageSchema
-    .path('imageURL')
-    .validate(validators.urlValidator, 'Not valid url');
+answerSchema.virtual('downVotesCount').get(function () {
+  return this.downVotes.length;
+});
 
 module.exports = mongoose.model('Answer', answerSchema);

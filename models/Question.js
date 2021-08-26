@@ -1,68 +1,89 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const validators = require('../utils/validators');
-
 const questionSchema = mongoose.Schema(
-    {
-        text: {
-            type: String,
-            required: true,
-            minLength: 15,
-            trim: true,
-            default: 'anonymous',
-        },
-        imageURL: {
-            type: String,
-            trim: true,
-            default:
-                'https://images.vexels.com/media/users/3/152864/isolated/preview/2e095de08301a57890aad6898ad8ba4c-yellow-circle-question-mark-icon-by-vexels.png',
-        },
-        author: {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-        category: {
-            type: Schema.Types.ObjectId,
-            ref: 'Category',
-        },
-        created: {
-            type: Date,
-            default: Date.now,
-        },
-        views: {
-            type: Number,
-            default: 0,
-        },
-        reactions: {
-            type: Schema.Types.ObjectId,
-            ref: 'Reaction',
-        },
-        tags: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: 'Tag',
-            },
-        ],
-        answers: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: 'Answer',
-            },
-        ],
+  {
+    title: {
+      type: String,
+      required: true,
+      minLength: 15,
+      trim: true,
     },
-    {
-        toJSON: { virtuals: true },
-    }
+    text: {
+      type: String,
+      trim: true,
+    },
+    imageURL: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Image',
+      },
+    ],
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    created: {
+      type: Date,
+      default: Date.now,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    upVotes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    downVotes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    tags: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Tag',
+      },
+    ],
+    answers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Answer',
+      },
+    ],
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
+  },
+  {
+    toJSON: { virtuals: true },
+  },
 );
 
 // computed time since creation
 questionSchema.virtual('answersCount').get(function () {
-    return this.answers.length;
+  return this.answers.length;
 });
 
-questionSchema
-    .path('imageURL')
-    .validate(validators.urlValidator, 'Not valid url');
+questionSchema.virtual('upVotesCount').get(function () {
+  return this.upVotes.length;
+});
+
+questionSchema.virtual('downVotesCount').get(function () {
+  return this.downVotes.length;
+});
+
+questionSchema.index({ title: 'text', text: 'text' });
 
 module.exports = mongoose.model('Question', questionSchema);

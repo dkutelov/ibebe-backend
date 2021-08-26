@@ -1,80 +1,118 @@
 const { Router } = require('express');
 
 const questionService = require('../services/questionService');
-const reactionService = require('../services/reactionService');
 
 const router = new Router();
 
 router.get('/', async (req, res) => {
-    try {
-        const questions = await questionService.getAll();
-        res.json(questions);
-    } catch (err) {
-        res.status(500).json({ err });
-    }
+  const params = req.query;
+  try {
+    const questions = await questionService.getAll(params);
+    res.status(200).json(questions);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+});
+
+router.get('/user/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const questions = await questionService.getQuestionsByUserId(userId);
+    res.json(questions);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
 });
 
 router.get('/:id', async (req, res) => {
-    const id = req.params.id;
-    try {
-        const question = await questionService.getOneById(id);
-        res.json(question);
-    } catch (err) {
-        res.status(500).json({ err });
-    }
+  const id = req.params.id;
+  try {
+    const category = await questionService.getOneById(id);
+    res.json(category);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const deletedQuestion = await questionService.remove(id);
+    res.json(deletedQuestion);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+});
+
+router.get('/:id/comments', async (req, res) => {
+  const questionId = req.params.id;
+  let comments;
+  try {
+    const comments = await questionService.getCommentsByQuestionId(questionId);
+    res.status(201).json(comments);
+  } catch (err) {
+    res.status(400).json({ err });
+  }
 });
 
 router.post('/', async (req, res) => {
-    try {
-        const question = await questionService.create(req.body);
-        res.status(201).json(question);
-    } catch (err) {
-        res.status(400).json({ err });
-    }
+  let question = req.body;
+  question.author = req.user._id;
+  try {
+    const newQuestion = await questionService.create(question);
+    res.status(201).json(newQuestion);
+  } catch (err) {
+    res.status(400).json({ err });
+  }
 });
 
-router.get('/:id/reactions', async (req, res) => {
-    const questionId = req.params.id;
+router.post('/vote', async (req, res) => {
+  const { questionId, voteType, userId } = req.body;
+  try {
+    const updatedVotesCount = await questionService.vote(
+      questionId,
+      voteType,
+      userId,
+    );
 
-    try {
-        const reactions = await reactionService.getReactionsBy(questionId);
-        res.status(201).json(reactions);
-    } catch (err) {
-        res.status(400).json({ err });
-    }
+    res
+      .status(201)
+      .json({ message: 'Thanks for your vote', updatedVotesCount });
+  } catch (err) {
+    res.status(400).json({ err });
+  }
 });
 
-router.post('/:id/reactions', async (req, res) => {
-    const id = req.params.id;
-    const type = req.query.type;
-
-    try {
-        const reactions = await reactionService.createOrRemoveReaction(
-            id,
-            type
-        );
-        res.status(201).json(reactions);
-    } catch (err) {
-        res.status(400).json({ err });
-    }
+router.post('/:id/comments', async (req, res) => {
+  const questionId = req.params.id;
+  let comment = req.body;
+  try {
+    const newComment = await questionService.createAndAddComment(
+      questionId,
+      comment,
+    );
+    res.status(201).json(newComment);
+  } catch (err) {
+    res.status(400).json({ err });
+  }
 });
 
-// router.patch('/', async (req, res) => {
-//     try {
-//         const updatedTag = await tagService.update(req.body);
-//         res.json(updatedTag);
-//     } catch (err) {
-//         res.status(400).json({ err });
-//     }
-// });
+router.put('/', async (req, res) => {
+  try {
+    const updatedQuestion = await questionService.update(req.body);
+    res.json(updatedQuestion);
+  } catch (error) {
+    res.status(400).json({ error: { message: 'Bad Request' } });
+  }
+});
 
-// router.delete('/', async (req, res) => {
-//     try {
-//         const deletedTag = await tagService.remove(req.body);
-//         res.json(deletedTag);
-//     } catch (err) {
-//         res.status(400).json({ err });
-//     }
-// });
+router.delete('/', async (req, res) => {
+  try {
+    const deletedCategory = await questionService.remove(req.body);
+    res.json(deletedCategory);
+  } catch (err) {
+    res.status(400).json({ err });
+  }
+});
 
 module.exports = router;

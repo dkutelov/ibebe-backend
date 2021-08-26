@@ -1,32 +1,45 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const commentSchema = mongoose.Schema({
-    answer: {
-        type: Schema.Types.ObjectId,
-        ref: 'Answer',
-    },
-    parent: {
-        type: Schema.Types.ObjectId,
-        ref: 'Comment',
-    },
+const commentSchema = mongoose.Schema(
+  {
     text: {
-        type: String,
-        required: true,
-        minLength: 3,
-        trim: true,
+      type: String,
+      required: true,
+      minLength: 3,
+      trim: true,
     },
     author: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
+    questionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Question',
+    },
+    answerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Answer',
     },
     created: {
-        type: Date,
-        default: Date.now,
+      type: Date,
+      default: Date.now,
     },
-    reactions: {
+    liked: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'Reaction',
-    },
+        ref: 'User',
+      },
+    ],
+  },
+  {
+    toJSON: { virtuals: true },
+  },
+);
+
+commentSchema.virtual('likes').get(function () {
+  return this.liked.length;
 });
 
 module.exports = mongoose.model('Comment', commentSchema);
