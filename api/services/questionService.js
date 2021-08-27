@@ -9,15 +9,15 @@ const dataFactory = require('../data/dataFactory')(Comment);
 async function getAll(params) {
   const questions = await questionData.getAll(params);
 
-  if (params?.sortBy === 'votes') {
+  if (params && params.sortBy === 'votes') {
     questions.sort((a, b) => {
       const aVotes = a.upVotes.length - a.downVotes.length;
       const bVotes = b.upVotes.length - b.downVotes.length;
       return bVotes - aVotes;
     });
-  } else if (params?.sortBy === 'latest') {
+  } else if (params && params.sortBy === 'latest') {
     questions.sort((a, b) => new Date(b.created) - new Date(a.created));
-  } else if (params?.sortBy === 'views') {
+  } else if (params && params.sortBy === 'views') {
     questions.sort((a, b) => b.views - a.views);
   }
 
